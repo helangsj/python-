@@ -1,0 +1,20 @@
+''''
+bs4应用：
+    使用lxml解析器解析
+        如 soup = beautifulsoup（response.text,'lxml'）
+    使用方法：
+        1、soup.tagname 选择标签选择器，返回第一个标签选择器
+        2、soup.find()
+            soup.find('tagname') 选择标签选择器，返回第一个标签选择器
+            soup.find('tagname',select) 对应标签，下对应属性选择，select可以为class_、id、attar……
+        3、soup.findall() 用法和find一样，但是该方法返回列表，不是一个数
+        4、select方法
+            soup.select('div > ul > li > a') >表示的是一个层级
+            soup.select('div > ul > li a')) 空格代表多个层级
+        5、获取标签之间的文本数据
+            text/get_text()/string
+            text/get_text()可以获取某一个标签中所有的文本数据
+            string 获取该标签下的直系数据
+        6、获取标签中的属性值
+            soup.a['href']
+            '''
