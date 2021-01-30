@@ -1,0 +1,95 @@
+scrapy的基本使用
+    ·环境安装
+        windows:
+            pip install wheel
+            下载twisted 下载地址：https://www.lfd.uci.edu/~gohlke/pythonlibs/#twisted
+            安装twisted pip install
+            pip install pywin32
+            pip install scrapy
+            测试:终端输入 scrapy
+    创建一个工程： scrapy startproject xxxPro
+    在spiders子目录中创建一个爬虫文件
+        scrapy genspider spiderName  www.baidu.com
+    执行工程;
+        scrapy crawl spiderName
+         使用国内镜像下载：pip install  scrapy -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+        robots.txt协议遵循： ROBOTSTXT_OBEY = True
+        ·关掉日志
+            scrapy crawl first_text --nolog
+        #显示指定类型的日志信息，在settings中设置
+        LOG_LEVEL = 'ERROR'
+        ·UA伪装
+        #USER_AGENT = 'first_scrapy (+http://www.yourdomain.com)'
+        ·extract() 将selector的字符串取出来
+        ·.join将列表转换为字符串
+scrapy 数据解析
+scrapy 持久化存储
+    ·基于终端指令
+        ·要求：只可以将parse方法的返回值存储到本地的文件夹中
+        ·注意：持久化存储可以存储的类型为：json', 'jsonlines', 'jl', 'csv', 'xml', 'marshal', 'pickle'
+                语句：scrapy crawl first_text -o path
+        ·优点：便捷、高效
+        ·缺点：局限性较强
+    ·基于管道
+        编码流程：
+            ·数据解析
+            ·在item类中定义相关属性
+            ·将解析的数据封装到item类型的对象
+            ·将item类型的对象提交给管道进行持久化存储的操作
+            ·在管理类的process_item中将其接受得item对象存储的数据进行持久化存储操作
+            ·在配置文件中开启管道
+         好处：通用性强
+    面试题：将爬取的数据一份存入数据库一份存入本地
+        ·管道文件中的一个管道类对应的是将数据存储到一种平台
+        ·爬虫文件提交的item只会被第一个管道类接收，下一个需要使用需要第一个管道类返回
+    基于spider的全站数据爬取
+        ·就是将某网站中某模块下的全部页码对应的页面数据进行爬取
+        需求：爬取校花网的照片名称
+        实现方式：
+            1、将所有页面的url添加到start_urls列表中
+            2、自行手动进行请求发送（推荐）
+                手动请求发送：callback专门用作数据解析
+                     yield scrapy.Request(url=new_url,callback=self.parse)
+    五大核心组件：
+        ·引擎（scrapy）
+            用来处理整个数据流处理，触发事务（框架核心）
+        ·调度器（scheduler）
+            用来接受引擎发过来的请求，压入队列中，并在引擎在再次请求的时候返回，可以想象为一个url（抓取网页的地址
+            或者说是连接）的优先队列，由她来决定下个抓取的网页，同时去除重复的地址。
+        ·下载器：
+            用于下载网页内容，并将网页内容返回给蜘蛛（scrapy下载器是建立在twisted这个高效的异步模型上的）
+        ·spiders（爬虫）
+            主要是干活的，用于从特定的页面中爬取自己需要的信息，即所谓的实体（item）,用户也可以从中提取出连接，
+            让scrapy继续抓取下一个页面
+        ·项目管道（pipeline）
+            负责处理爬虫从网页中抽取的实体，主要的功能是持久化实体，验证实体的有效性，清除不需要的信息，当页面被爬虫解析后
+            将被发送到项目管道，并经过几个特定的次序处理数据
+
+    请求传参
+        使用场景：爬取的数据不在同一个页面当中（深度爬取）
+        需求：爬取boss的岗位名称及详情页数据
+        是用meta字典请求传参，在方法中使用response.meta接受item
+
+    基于scrapy爬取字符串类型的数据和爬取图片类型的数据区别？
+        字符串：只需要基于xpath进行解析并提交管道进行持久化存储
+        图片：xpath解析出图片src的属性值。单独的对图片地址请求获取二进制的数据，并需要重写图片管道类
+    ImagesPipline
+        只需将img的src的属性值进行解析，提交到管道，管道就会对图片的二进制数据发起请求
+        ·爬取站长素材图片
+            · 使用流程
+                1、解析数据
+                2、将存储的item图片地址提交到制定的管道类
+                3、在管道文件中自制一个基于ImagesPipLine的一个类
+                    具体请看文件   G:\python_study\scrapy\zhanzhangsucai\zhanzhangsucai\pipelines.py
+                4、在配置文件中制定文件存储的目录结构 ：IMAGES_STORE = './imgs'
+                5、在配置文件中开启管道
+
+    中间件
+        ·下载中间件
+            位置：引擎和下载器之间
+            作用：批量拦截到整个工程中所有的请求和响应
+            拦截请求：
+                ·UA伪装 ：process_request
+                ·代理IP的设定 :process_exception  return request
+            拦截响应：
+                ·篡改响应内容，响应对象

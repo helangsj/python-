@@ -1,0 +1,37 @@
+cookie:用于让服务器端记录客户端的相关状态。
+1、手动cookie处理：通过抓包工具获取cookie值，手动封装
+headers = {
+    'cookie':'XXXXXXX'
+    }
+2、自动cookie处理
+    1、需要考虑该值的来源？
+        response headers 下的set cookie中获取
+        进行模拟登录后，由服务器创建
+3、session会话对象
+    作用：
+        1、请求的发送
+        2、请求过程产生cookie,则该cookie会被自动存储/携带在session对象中
+    创建session对象：
+        session = request.session()
+        response = session.post()或response = session.get()
+代理：
+    作用：
+        1、突破自身IP访问的限制
+        2、隐藏自身真实IP
+     相关网站：
+        1、快代理
+        2、西祠代理
+        3、www.goubanjia.com
+     类型：
+        http:应用到http的协议中
+        https：应用到https的协议中
+    匿名度：
+        透明：服务器知道该次请求使用了代理，也知道请求使用的真实IP
+        匿名：知道使用了代理，不知道真实的IP
+        高匿名：不知道使用了代理，不知道真实IP
+    使用情况：
+        遇到封IP的情况使用代理IP去爬取数据
+
+https://www.ip138.com/iplookup.asp?ip=124.127.79.79&action=2
+
+
